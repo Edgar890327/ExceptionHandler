@@ -24,6 +24,9 @@ namespace ExceptionHandling.Middleware
             }
             catch (Exception e)
             {
+                if (e.InnerException is BaseException)
+                    await HandleException(e.InnerException, context);
+
                 await HandleException(e, context);
             }
         }
@@ -32,7 +35,7 @@ namespace ExceptionHandling.Middleware
         {
             context.Response.ContentType = CONTENT_TYPE;
             var displayMessage = DEFAULT_ERROR_MESSAGE;
-            
+            context.Response.StatusCode = 500;
             if (exception is BaseException baseException)
             {
                 context.Response.StatusCode = baseException.StatusCode;
@@ -41,6 +44,6 @@ namespace ExceptionHandling.Middleware
 
             await context.Response.WriteAsync(displayMessage);
         }
-        
+
     }
 }
